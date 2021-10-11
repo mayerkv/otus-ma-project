@@ -1,0 +1,45 @@
+@startuml
+actor Admin
+participant UserService
+queue MessageBroker
+participant AuthService
+participant NotificationService
+actor User
+
+
+Admin -> UserService ++: POST /users {email,name,role}
+rnote over UserService
+  transaction step
+endrnote
+UserService -> MessageBroker ++: publish
+UserService --> Admin --: 201 Created
+
+rnote over MessageBroker
+  auth-service/register-command {userId, login}
+endrnote
+MessageBroker --> AuthService --++: subscribe
+
+AuthService -> MessageBroker --++: publish
+rnote over MessageBroker
+  users-service/register-reply {activation_token}
+endrnote
+MessageBroker --> UserService --++: subscribe
+rnote over UserService
+  transaction step
+endrnote
+UserService -> MessageBroker --++: publish
+
+rnote over MessageBroker
+  notifications-service/send-email-command {email, template, context}
+endrnote
+MessageBroker --> NotificationService --++: subscribe
+NotificationService -> User: send email
+NotificationService -> MessageBroker --++: publish
+rnote over MessageBroker
+  users-service/send-email-reply {status}
+endrnote
+MessageBroker --> UserService --++: subscribe
+rnote over UserService
+  end transaction
+endrnote
+@enduml

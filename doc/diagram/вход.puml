@@ -1,0 +1,7 @@
+@startuml
+actor User
+participant AuthService
+
+User -> AuthService ++: POST /auth/login {login, password}
+return 200 OK {access_token,refresh_token}
+@enduml

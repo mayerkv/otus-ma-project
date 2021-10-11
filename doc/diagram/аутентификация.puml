@@ -1,0 +1,13 @@
+@startuml
+actor User
+participant Gateway
+participant AuthService
+participant SomeService
+
+User -> Gateway ++: /some-service/* 'Authorization: Bearer <access_token>'
+Gateway -> AuthService ++: /auth/authorize 'Authorization: Bearer <access_token>'
+return 200 OK 'x-user-id: 1, x-user-role: user'
+Gateway ->SomeService ++: /some-service/* 'x-user-id: 1, x-user-role: user'
+return some service response
+return some service response
+@enduml

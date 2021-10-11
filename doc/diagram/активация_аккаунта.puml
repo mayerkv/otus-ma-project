@@ -1,0 +1,8 @@
+@startuml
+actor User
+participant AuthService
+
+User -> AuthService ++: POST /auth/activate/{activation_token} {password}
+AuthService -> AuthService: change account status
+return 200 OK
+@enduml
